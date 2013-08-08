@@ -1,0 +1,2 @@
+$ ->
+  audioContext = new (AudioContext ? webkitAudioContext)
