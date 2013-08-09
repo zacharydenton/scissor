@@ -2,20 +2,36 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Webscissor</title>
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="css/webscissor.css">
+    <title>Scissor</title>
+    <link href="http://fonts.googleapis.com/css?family=Stalinist+One|Source+Sans+Pro:400,400italic,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/scissor.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="js/knob.js"></script>
     <script src="js/tuna.js"></script>
     <script src="js/mousetrap.js"></script>
-    <script src="js/webscissor.js"></script>
+    <script src="js/scissor.js"></script>
   </head>
   <body>
-		<div id="webscissor">
-      <div id="controls"> </div>
-      <div id="tubes"> </div>
-      <div id="keyboard"> </div>
+		<div id="scissor">
+      <div id="controls">
+				<div class="panel">
+					<div class="knob">
+						<input id="saws" type="range" min="1" max="15" data-width="62" data-height="62" data-angleOffset="220" data-angleRange="280" />
+						<label>Num. Saws</label>
+					</div>
+				</div>
+				<div class="title panel">
+        	<h1>Scissor</h1>
+					<p>Web Audio Supersaw Synthesizer</p>
+				</div>
+				<div class="panel">
+					<div class="knob">
+						<input id="detune" type="range" min="0" max="100" data-width="62" data-height="62" data-angleOffset="220" data-angleRange="280" />
+						<label>Detune</label>
+					</div>
+				</div>
+      </div>
+      <div id="keyboard"></div>
 		</div>
   </body>
 </html>

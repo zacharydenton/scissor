@@ -11,8 +11,8 @@
       });
       this.delay.connect(this.output);
       this.voices = [];
-      this.numSaws = 7;
-      this.detune = 1;
+      this.numSaws = 3;
+      this.detune = 12;
     }
 
     Scissor.prototype.noteOn = function(note, time) {
@@ -63,8 +63,9 @@
         saw = this.context.createOscillator();
         saw.type = saw.SAWTOOTH;
         saw.frequency.value = this.frequency;
-        saw.detune.value = (this.detune * Math.floor(this.numSaws / 2)) - i * this.detune;
+        saw.detune.value = -this.detune + i * 2 * this.detune / (this.numSaws - 1);
         saw.start(this.context.currentTime);
+        console.log(saw.detune.value);
         saw.connect(this.output);
         this.saws.push(saw);
       }
@@ -105,9 +106,28 @@
         return console.log("noteOff: " + note);
       };
       this.keysPressed = {};
-      this.bindKeys();
       this.render();
+      this.bindKeys();
+      this.bindMouse();
     }
+
+    VirtualKeyboard.prototype._noteOn = function(note) {
+      if (note in this.keysPressed) {
+        return;
+      }
+      $(this.$el.find('li').get(note - this.lowestNote)).addClass('active');
+      this.keysPressed[note] = true;
+      return this.noteOn(note);
+    };
+
+    VirtualKeyboard.prototype._noteOff = function(note) {
+      if (!(note in this.keysPressed)) {
+        return;
+      }
+      $(this.$el.find('li').get(note - this.lowestNote)).removeClass('active');
+      delete this.keysPressed[note];
+      return this.noteOff(note);
+    };
 
     VirtualKeyboard.prototype.bindKeys = function() {
       var i, letter, _fn, _i, _len, _ref,
@@ -115,24 +135,10 @@
       _ref = this.letters;
       _fn = function(letter, i) {
         Mousetrap.bind(letter, (function() {
-          var note;
-          note = _this.lowestNote + i;
-          if (note in _this.keysPressed) {
-            return;
-          }
-          $(_this.$el.find('li').get(i)).addClass('active');
-          _this.keysPressed[note] = true;
-          return _this.noteOn(note);
+          return _this._noteOn(_this.lowestNote + i);
         }), 'keydown');
         return Mousetrap.bind(letter, (function() {
-          var note;
-          note = _this.lowestNote + i;
-          if (!(note in _this.keysPressed)) {
-            return;
-          }
-          $(_this.$el.find('li').get(i)).removeClass('active');
-          delete _this.keysPressed[note];
-          return _this.noteOff(note);
+          return _this._noteOff(_this.lowestNote + i);
         }), 'keyup');
       };
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
@@ -144,6 +150,18 @@
       });
       return Mousetrap.bind('x', function() {
         return _this.lowestNote += 12;
+      });
+    };
+
+    VirtualKeyboard.prototype.bindMouse = function() {
+      var _this = this;
+      return this.$el.find('li').each(function(i, key) {
+        $(key).mousedown(function() {
+          return _this._noteOn(_this.lowestNote + i);
+        });
+        return $(key).mouseup(function() {
+          return _this._noteOff(_this.lowestNote + i);
+        });
       });
     };
 
@@ -172,7 +190,7 @@
   };
 
   $(function() {
-    var audioContext, i, keyboard, masterGain, _i, _ref, _results;
+    var audioContext, detuneKnob, keyboard, masterGain, sawsKnob, setDetune, setNumSaws;
     audioContext = new (typeof AudioContext !== "undefined" && AudioContext !== null ? AudioContext : webkitAudioContext);
     masterGain = audioContext.createGain();
     masterGain.gain.value = 0.7;
@@ -187,11 +205,26 @@
         return scissor.noteOff(note);
       }
     });
-    _results = [];
-    for (i = _i = 0, _ref = scissor.numSaws; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-      _results.push($("#tubes").append('<div>'));
-    }
-    return _results;
+    setNumSaws = function(numSaws) {
+      return scissor.numSaws = numSaws;
+    };
+    setDetune = function(detune) {
+      return scissor.detune = detune;
+    };
+    sawsKnob = new Knob($("#saws")[0], new Ui.P2());
+    sawsKnob.changed = function() {
+      Knob.prototype.changed.apply(this, arguments);
+      return setNumSaws(this.value);
+    };
+    $("#saws").val(scissor.numSaws);
+    sawsKnob.changed(0);
+    detuneKnob = new Knob($("#detune")[0], new Ui.P2());
+    detuneKnob.changed = function() {
+      Knob.prototype.changed.apply(this, arguments);
+      return setDetune(this.value);
+    };
+    $("#detune").val(scissor.detune);
+    return detuneKnob.changed(0);
   });
 
 }).call(this);

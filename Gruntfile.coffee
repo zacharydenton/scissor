@@ -5,11 +5,11 @@ module.exports = (grunt) ->
     coffee:
       compile:
         files:
-          'js/webscissor.js': 'js/webscissor.coffee'
+          'js/scissor.js': 'js/scissor.coffee'
     less:
       compile:
         files:
-          'css/webscissor.css': 'css/webscissor.less'
+          'css/scissor.css': 'css/scissor.less'
     watch:
       all:
         files: ['js/*.coffee', 'css/*.less']

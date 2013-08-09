@@ -6,8 +6,8 @@ class Scissor
     @delay.connect @output
 
     @voices = []
-    @numSaws = 7
-    @detune = 1
+    @numSaws = 3
+    @detune = 12
 
   noteOn: (note, time) ->
     return if @voices[note]?
@@ -36,8 +36,9 @@ class ScissorVoice
       saw = @context.createOscillator()
       saw.type = saw.SAWTOOTH
       saw.frequency.value = @frequency
-      saw.detune.value = (@detune * Math.floor(@numSaws / 2)) - i * @detune
+      saw.detune.value = -@detune + i * 2 * @detune / (@numSaws - 1)
       saw.start @context.currentTime
+      console.log saw.detune.value
       saw.connect @output
       @saws.push saw
 
@@ -62,25 +63,30 @@ class VirtualKeyboard
     @noteOn = params.noteOn ? (note) -> console.log "noteOn: #{note}"
     @noteOff = params.noteOff ? (note) -> console.log "noteOff: #{note}"
     @keysPressed = {}
-    @bindKeys()
     @render()
+    @bindKeys()
+    @bindMouse()
+
+  _noteOn: (note) ->
+    return if note of @keysPressed
+    $(@$el.find('li').get(note - @lowestNote)).addClass 'active'
+    @keysPressed[note] = true
+    @noteOn note
+
+  _noteOff: (note) ->
+    return unless note of @keysPressed
+    $(@$el.find('li').get(note - @lowestNote)).removeClass 'active'
+    delete @keysPressed[note]
+    @noteOff note
 
   bindKeys: ->
     for letter, i in @letters
       do (letter, i) =>
         Mousetrap.bind letter, (=>
-          note = @lowestNote + i
-          return if note of @keysPressed
-          $(@$el.find('li').get(i)).addClass 'active'
-          @keysPressed[note] = true
-          @noteOn note
+          @_noteOn (@lowestNote + i)
         ), 'keydown'
         Mousetrap.bind letter, (=>
-          note = @lowestNote + i
-          return unless note of @keysPressed
-          $(@$el.find('li').get(i)).removeClass 'active'
-          delete @keysPressed[note]
-          @noteOff note
+          @_noteOff (@lowestNote + i)
         ), 'keyup'
 
     Mousetrap.bind 'z', =>
@@ -90,6 +96,13 @@ class VirtualKeyboard
     Mousetrap.bind 'x', =>
       # shift one octave up
       @lowestNote += 12
+
+  bindMouse: ->
+    @$el.find('li').each (i, key) =>
+      $(key).mousedown =>
+        @_noteOn (@lowestNote + i)
+      $(key).mouseup =>
+        @_noteOff (@lowestNote + i)
 
   render: ->
     @$el.empty()
@@ -109,7 +122,6 @@ $ ->
   masterGain = audioContext.createGain()
   masterGain.gain.value = 0.7
   masterGain.connect audioContext.destination
-
   window.scissor = new Scissor(audioContext)
   scissor.connect masterGain
 
@@ -119,5 +131,22 @@ $ ->
     noteOff: (note) ->
       scissor.noteOff note
 
-  for i in [0...scissor.numSaws]
-    $("#tubes").append('<div>')
+  setNumSaws = (numSaws) ->
+    scissor.numSaws = numSaws
+
+  setDetune = (detune) ->
+    scissor.detune = detune
+
+  sawsKnob = new Knob($("#saws")[0], new Ui.P2())
+  sawsKnob.changed = ->
+    Knob.prototype.changed.apply this, arguments
+    setNumSaws @value
+  $("#saws").val scissor.numSaws
+  sawsKnob.changed 0
+
+  detuneKnob = new Knob($("#detune")[0], new Ui.P2())
+  detuneKnob.changed = ->
+    Knob.prototype.changed.apply this, arguments
+    setDetune @value
+  $("#detune").val scissor.detune
+  detuneKnob.changed 0
