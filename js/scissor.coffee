@@ -38,7 +38,6 @@ class ScissorVoice
       saw.frequency.value = @frequency
       saw.detune.value = -@detune + i * 2 * @detune / (@numSaws - 1)
       saw.start @context.currentTime
-      console.log saw.detune.value
       saw.connect @output
       @saws.push saw
 

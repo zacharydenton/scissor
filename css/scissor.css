@@ -402,9 +402,9 @@ body {
   background-image: linear-gradient(to bottom, #c0c0c0, #737373);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffc0c0c0', endColorstr='#ff737373', GradientType=0);
-  padding-left: 0.38196601065988556rem;
-  padding-right: 0.38196601065988556rem;
-  border-radius: 0.23606797695262602rem;
+  padding-left: 0.23606797695262602rem;
+  padding-right: 0.23606797695262602rem;
+  border-radius: 0.1458980332994278rem;
   -webkit-box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
   box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
 }
@@ -465,6 +465,10 @@ body {
   flex-direction: column;
 }
 #controls .panel.title h1 {
+  margin: 0;
+  padding: 0;
+}
+#controls .panel.title h1 a {
   color: #c30909;
   text-shadow: 0 1px 0 #d9d9d9;
   font-size: 2.6180339927953202rem;
@@ -472,8 +476,7 @@ body {
   font-family: "Stalinist One", sans-serif;
   font-weight: 400;
   text-transform: uppercase;
-  margin: 0;
-  padding: 0;
+  text-decoration: none;
 }
 #controls .panel.title p {
   margin: 0;

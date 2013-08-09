@@ -65,7 +65,6 @@
         saw.frequency.value = this.frequency;
         saw.detune.value = -this.detune + i * 2 * this.detune / (this.numSaws - 1);
         saw.start(this.context.currentTime);
-        console.log(saw.detune.value);
         saw.connect(this.output);
         this.saws.push(saw);
       }

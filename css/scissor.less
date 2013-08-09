@@ -30,9 +30,9 @@ body {
 
 #scissor {
 	#gradient.vertical(lighten(@synth-color, 30%), @synth-color);
-	padding-left: @size-tiny;
-	padding-right: @size-tiny;
-	border-radius: @size-micro;
+	padding-left: @size-micro;
+	padding-right: @size-micro;
+	border-radius: @size-nano;
 	.box-shadow(0 0 @size-base rgba(0,0,0,0.5));
 }
 
@@ -71,15 +71,19 @@ body {
 			.flex-direction(column);
 
 			h1 {
-				color: @header-color;
-				text-shadow: 0 1px 0 lighten(@synth-color, 40%);
-				font-size: @size-huge;
-				line-height: 1;
-				font-family: "Stalinist One", sans-serif;
-				font-weight: 400;
-				text-transform: uppercase;
 				margin: 0;
 				padding: 0;
+
+				a {
+					color: @header-color;
+					text-shadow: 0 1px 0 lighten(@synth-color, 40%);
+					font-size: @size-huge;
+					line-height: 1;
+					font-family: "Stalinist One", sans-serif;
+					font-weight: 400;
+					text-transform: uppercase;
+					text-decoration: none;
+				}
 			}
 
 			p {
