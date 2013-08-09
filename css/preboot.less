@@ -42,10 +42,16 @@
 @font-family-monospace:   Monaco, Menlo, Consolas, "Courier New", monospace;
 @font-family-base:        @font-family-sans-serif;
 
-@font-size-base:          14px;
-@font-size-large:         @font-size-base * 1.25; // ~18px
-@font-size-small:         @font-size-base * 0.85; // ~12px
-@font-size-mini:          @font-size-base * 0.75; // ~11px
+@phi:                1.61803399;
+@size-nano:          unit(pow(@phi, -4), rem);
+@size-micro:         unit(pow(@phi, -3), rem);
+@size-tiny:          unit(pow(@phi, -2), rem);
+@size-small:         unit(pow(@phi, -1), rem);
+@size-base:          unit(pow(@phi, 0), rem);
+@size-large:         unit(pow(@phi, 1), rem);
+@size-huge:          unit(pow(@phi, 2), rem);
+@size-massive:       unit(pow(@phi, 3), rem);
+@size-epic:          unit(pow(@phi, 4), rem);
 
 @line-height-base:        1.4;
 

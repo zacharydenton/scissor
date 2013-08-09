@@ -6,7 +6,9 @@
       this.context = context;
       this.tuna = new Tuna(this.context);
       this.output = this.context.createGain();
-      this.delay = new this.tuna.Delay();
+      this.delay = new this.tuna.Delay({
+        cutoff: 3000
+      });
       this.delay.connect(this.output);
       this.voices = [];
       this.numSaws = 7;
@@ -91,10 +93,10 @@
   })();
 
   VirtualKeyboard = (function() {
-    function VirtualKeyboard(params) {
-      var i, letter, _fn, _i, _len, _ref, _ref1, _ref2, _ref3, _ref4,
-        _this = this;
-      this.lowestNote = (_ref = params.lowestNote) != null ? _ref : 60;
+    function VirtualKeyboard($el, params) {
+      var _ref, _ref1, _ref2, _ref3;
+      this.$el = $el;
+      this.lowestNote = (_ref = params.lowestNote) != null ? _ref : 48;
       this.letters = (_ref1 = params.letters) != null ? _ref1 : "awsedftgyhujkolp;'".split('');
       this.noteOn = (_ref2 = params.noteOn) != null ? _ref2 : function(note) {
         return console.log("noteOn: " + note);
@@ -103,7 +105,14 @@
         return console.log("noteOff: " + note);
       };
       this.keysPressed = {};
-      _ref4 = this.letters;
+      this.bindKeys();
+      this.render();
+    }
+
+    VirtualKeyboard.prototype.bindKeys = function() {
+      var i, letter, _fn, _i, _len, _ref,
+        _this = this;
+      _ref = this.letters;
       _fn = function(letter, i) {
         Mousetrap.bind(letter, (function() {
           var note;
@@ -111,6 +120,7 @@
           if (note in _this.keysPressed) {
             return;
           }
+          $(_this.$el.find('li').get(i)).addClass('active');
           _this.keysPressed[note] = true;
           return _this.noteOn(note);
         }), 'keydown');
@@ -120,21 +130,38 @@
           if (!(note in _this.keysPressed)) {
             return;
           }
+          $(_this.$el.find('li').get(i)).removeClass('active');
           delete _this.keysPressed[note];
           return _this.noteOff(note);
         }), 'keyup');
       };
-      for (i = _i = 0, _len = _ref4.length; _i < _len; i = ++_i) {
-        letter = _ref4[i];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        letter = _ref[i];
         _fn(letter, i);
       }
       Mousetrap.bind('z', function() {
         return _this.lowestNote -= 12;
       });
-      Mousetrap.bind('x', function() {
+      return Mousetrap.bind('x', function() {
         return _this.lowestNote += 12;
       });
-    }
+    };
+
+    VirtualKeyboard.prototype.render = function() {
+      var $key, $ul, i, letter, _i, _len, _ref;
+      this.$el.empty();
+      $ul = $("<ul>");
+      _ref = this.letters;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        letter = _ref[i];
+        $key = $("<li>" + letter + "</li>");
+        if (i === 1 || i === 3 || i === 6 || i === 8 || i === 10 || i === 13 || i === 15) {
+          $key.addClass('accidental');
+        }
+        $ul.append($key);
+      }
+      return this.$el.append($ul);
+    };
 
     return VirtualKeyboard;
 
@@ -145,14 +172,14 @@
   };
 
   $(function() {
-    var audioContext, keyboard, masterGain;
+    var audioContext, i, keyboard, masterGain, _i, _ref, _results;
     audioContext = new (typeof AudioContext !== "undefined" && AudioContext !== null ? AudioContext : webkitAudioContext);
     masterGain = audioContext.createGain();
     masterGain.gain.value = 0.7;
     masterGain.connect(audioContext.destination);
     window.scissor = new Scissor(audioContext);
     scissor.connect(masterGain);
-    return keyboard = new VirtualKeyboard({
+    keyboard = new VirtualKeyboard($("#keyboard"), {
       noteOn: function(note) {
         return scissor.noteOn(note);
       },
@@ -160,6 +187,11 @@
         return scissor.noteOff(note);
       }
     });
+    _results = [];
+    for (i = _i = 0, _ref = scissor.numSaws; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      _results.push($("#tubes").append('<div>'));
+    }
+    return _results;
   });
 
 }).call(this);

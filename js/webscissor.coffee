@@ -2,7 +2,7 @@ class Scissor
   constructor: (@context) ->
     @tuna = new Tuna(@context)
     @output = @context.createGain()
-    @delay = new @tuna.Delay()
+    @delay = new @tuna.Delay(cutoff: 3000)
     @delay.connect @output
 
     @voices = []
@@ -56,24 +56,29 @@ class ScissorVoice
     @output.connect target
 
 class VirtualKeyboard
-  constructor: (params) ->
-    @lowestNote = params.lowestNote ? 60
+  constructor: (@$el, params) ->
+    @lowestNote = params.lowestNote ? 48
     @letters = params.letters ? "awsedftgyhujkolp;'".split ''
     @noteOn = params.noteOn ? (note) -> console.log "noteOn: #{note}"
     @noteOff = params.noteOff ? (note) -> console.log "noteOff: #{note}"
     @keysPressed = {}
+    @bindKeys()
+    @render()
 
+  bindKeys: ->
     for letter, i in @letters
       do (letter, i) =>
         Mousetrap.bind letter, (=>
           note = @lowestNote + i
           return if note of @keysPressed
+          $(@$el.find('li').get(i)).addClass 'active'
           @keysPressed[note] = true
           @noteOn note
         ), 'keydown'
         Mousetrap.bind letter, (=>
           note = @lowestNote + i
           return unless note of @keysPressed
+          $(@$el.find('li').get(i)).removeClass 'active'
           delete @keysPressed[note]
           @noteOff note
         ), 'keyup'
@@ -85,6 +90,16 @@ class VirtualKeyboard
     Mousetrap.bind 'x', =>
       # shift one octave up
       @lowestNote += 12
+
+  render: ->
+    @$el.empty()
+    $ul = $("<ul>")
+    for letter, i in @letters
+      $key = $("<li>#{letter}</li>")
+      if i in [1, 3, 6, 8, 10, 13, 15]
+        $key.addClass 'accidental'
+      $ul.append $key
+    @$el.append $ul
 
 noteToFrequency = (note) ->
   Math.pow(2, (note - 69) / 12) * 440.0
@@ -98,8 +113,11 @@ $ ->
   window.scissor = new Scissor(audioContext)
   scissor.connect masterGain
 
-  keyboard = new VirtualKeyboard
+  keyboard = new VirtualKeyboard $("#keyboard"),
     noteOn: (note) ->
       scissor.noteOn note
     noteOff: (note) ->
       scissor.noteOff note
+
+  for i in [0...scissor.numSaws]
+    $("#tubes").append('<div>')

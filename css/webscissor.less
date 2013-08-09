@@ -1,5 +1,13 @@
 @import "normalize.less";
 @import "preboot.less";
+@import "flexbox.less";
+
+.box-shadows(@1, @2, @3, @4, @5) {
+  -webkit-box-shadow: @1, @2, @3, @4, @5; // iOS <4.3 & Android <4.1
+          box-shadow: @1, @2, @3, @4, @5;
+}
+
+@synth-width: 40rem;
 
 html {
 	width: 100%;
@@ -10,4 +18,98 @@ body {
 	width: 100%;
 	height: 100%;
 	font-family: @font-family-base;
+	.flex-display;
+	.justify-content(center);
+	.align-items(center);
+}
+
+#webscissor {
+	width: @synth-width;
+}
+
+#controls {
+	height: 10rem;
+	background: black;
+	.box-shadow(0 0 @size-base rgba(0,0,0,0.5));
+}
+
+#tubes {
+	height: 30rem;
+	.flex-display;
+
+	div {
+		.flex(1);
+		background: rgba(0, 0, 0, 0.25);
+		border: 1px solid rgba(0,0,0,0.4);
+		border-top: none;
+		border-bottom: none;
+		margin-right: @size-base;
+		.box-shadows(0 0 @size-base rgba(0,0,0,0.5),
+								 inset @size-nano 0 rgba(255,255,255,0.2),
+								 inset @size-small 0 rgba(255,255,255,0.1),
+								 inset @size-small 0 @size-large rgba(255,255,255,0.07),
+								 inset -@size-base 0 @size-large rgba(0,0,0,0.3));
+
+	  &:last-child {
+			margin: 0;
+		}
+	}
+}
+
+#keyboard {
+	.box-shadow(0 0 @size-base rgba(0,0,0,0.5));
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		li {
+			float: left;
+			height: 8rem;
+			.flex-display;
+			.align-items(flex-end);
+			text-transform: uppercase;
+			font-style: italic;
+			padding-left: @size-tiny;
+			padding-bottom: @size-micro;
+			width: @synth-width / 11 - @size-nano;
+			border-radius: @size-micro;
+			color: rgb(167, 167, 167);
+			background-color: rgb(236, 236, 236);
+			border-top: @size-nano solid rgb(215, 215, 215);
+			border-left: @size-tiny solid rgb(211, 212, 214);
+			border-right: @size-tiny solid rgb(211, 212, 214);
+			border-bottom: @size-micro solid rgb(196, 196, 196);
+			margin-right: @size-nano;
+			.box-shadow(0 0 @size-base rgba(0,0,0,0.5));
+			.box-sizing(border-box);
+
+			&.active {
+				.box-shadow(none);
+				background-color: rgb(230, 230, 230);
+			}
+
+			&.accidental {
+				position: relative;
+				color: rgb(43, 44, 46);
+				background-color: rgb(80, 80, 80);
+				border-top: @size-nano solid rgb(70, 74, 75);
+				border-left: @size-tiny solid rgb(42, 48, 48);
+				border-right: @size-tiny solid rgb(42, 48, 48);
+				border-bottom: @size-micro solid rgb(32, 32, 32);
+				margin-left: -@size-base;
+				margin-right: -(@size-base + @synth-width / 22);
+				height: 3.5rem;
+
+				&.active {
+					background-color: rgb(86, 86, 86);
+				}
+			}
+
+			&:last-child {
+				margin: none;
+			}
+		}
+	}
 }
