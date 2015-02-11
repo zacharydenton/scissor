@@ -31,10 +31,13 @@ class ScissorVoice
   constructor: (@context, @frequency, @numSaws, @detune) ->
     @output = @context.createGain()
     @maxGain = 1 / @numSaws
+    @attack = 0.001
+    @decay = 0.015
+    @release = 0.4
     @saws = []
     for i in [0...@numSaws]
       saw = @context.createOscillator()
-      saw.type = saw.SAWTOOTH
+      saw.type = 'sawtooth'
       saw.frequency.value = @frequency
       saw.detune.value = -@detune + i * 2 * @detune / (@numSaws - 1)
       saw.start @context.currentTime
@@ -42,15 +45,16 @@ class ScissorVoice
       @saws.push saw
 
   start: (time) ->
-    @output.gain.setValueAtTime @maxGain, time
+    @output.gain.value = 0
+    @output.gain.setValueAtTime 0, time
+    @output.gain.setTargetAtTime @maxGain, time + @attack, @decay + 0.001
 
   stop: (time) ->
-    @output.gain.setValueAtTime 0, time
-    setTimeout (=>
-      # remove old saws
-      @saws.forEach (saw) ->
-        saw.disconnect()
-    ), Math.floor((time - @context.currentTime) * 1000)
+    @output.gain.cancelScheduledValues time
+    @output.gain.setValueAtTime @output.gain.value, time
+    @output.gain.setTargetAtTime 0, time, @release / 10
+    @saws.forEach (saw) =>
+      saw.stop(time + @release)
 
   connect: (target) ->
     @output.connect target
@@ -137,15 +141,13 @@ $ ->
     scissor.detune = detune
 
   sawsKnob = new Knob($("#saws")[0], new Ui.P2())
-  sawsKnob.changed = ->
-    Knob.prototype.changed.apply this, arguments
-    setNumSaws @value
+  sawsKnob.onChange = (value) ->
+    setNumSaws value
   $("#saws").val scissor.numSaws
   sawsKnob.changed 0
 
   detuneKnob = new Knob($("#detune")[0], new Ui.P2())
-  detuneKnob.changed = ->
-    Knob.prototype.changed.apply this, arguments
-    setDetune @value
+  detuneKnob.onChange = (value) ->
+    setDetune value
   $("#detune").val scissor.detune
   detuneKnob.changed 0
